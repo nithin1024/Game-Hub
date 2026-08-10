@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplayer Game Hub | Real-Time Gaming Arena</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <div class="app-wrapper">
+    <!-- ==================== 1. LOBBY SCREEN ==================== -->
+    <main id="lobby-screen" class="screen active">
+      <div class="lobby-card glass-panel">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="logo-icon">🎮</span>
+          </div>
+          <h1>GAME HUB</h1>
+          <p class="tagline">Real-Time Multiplayer Arena</p>
+        </div>
+
+        <div class="input-group">
+          <label for="username-input">
+            <i class="fa-solid fa-user-ninja"></i> Enter Your Display Name
+          </label>
+          <input type="text" id="username-input" placeholder="e.g. Phoenix" maxlength="15" autocomplete="off">
+        </div>
+
+        <div class="lobby-actions">
+          <div class="action-card glass-card">
+            <h3><i class="fa-solid fa-plus-circle"></i> Create Room</h3>
+            <p>Host a new game room and invite a friend</p>
+            <button id="btn-create-room" class="btn btn-primary btn-glow">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Create New Room
+            </button>
+          </div>
+
+          <div class="divider"><span>OR</span></div>
+
+          <div class="action-card glass-card">
+            <h3><i class="fa-solid fa-right-to-bracket"></i> Join Room</h3>
+            <p>Enter a 6-character room code</p>
+            <div class="join-input-wrapper">
+              <input type="text" id="room-id-input" placeholder="e.g. AB12CD" maxlength="6" autocomplete="off">
+              <button id="btn-join-room" class="btn btn-secondary">
+                Join <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== 2. WAITING MODAL ==================== -->
+    <div id="waiting-modal" class="modal-overlay hidden">
+      <div class="modal-card glass-panel text-center">
+        <div class="radar-spinner">
+          <div class="pulse-ring"></div>
+          <i class="fa-solid fa-wifi"></i>
+        </div>
+        <h2>Waiting for Opponent...</h2>
+        <p>Share this Room ID with a friend to play!</p>
+        
+        <div class="room-code-box">
+          <span id="waiting-room-id" class="code-text">------</span>
+          <button id="btn-copy-code" class="btn-icon" title="Copy Code">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+
+        <button id="btn-cancel-waiting" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-xmark"></i> Cancel & Return to Lobby
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 3. GAME SELECTION SCREEN ==================== -->
+    <main id="selection-screen" class="screen hidden">
+      <div class="selection-card glass-panel text-center">
+        <div class="selection-header">
+          <h2>SELECT A GAME 🎮</h2>
+          <p id="selection-subtitle">Choose a game to play with your opponent</p>
+        </div>
+
+        <div class="games-grid">
+          <!-- Game 1: Tic-Tac-Toe -->
+          <div class="game-card glass-card" data-game="tic_tac_toe">
+            <div class="game-icon">❌⭕</div>
+            <h3>Tic-Tac-Toe</h3>
+            <p>Classic 3x3 grid alignment game</p>
+            <button class="btn btn-primary btn-select-game" data-game="tic_tac_toe">
+              Play Tic-Tac-Toe
+            </button>
+          </div>
+
+          <!-- Game 2: Connect 4 -->
+          <div class="game-card glass-card" data-game="connect4">
+            <div class="game-icon">🟡🔴</div>
+            <h3>Connect 4</h3>
+            <p>7x6 gravity drop matrix. Get 4 in a row!</p>
+            <button class="btn btn-primary btn-select-game" data-game="connect4">
+              Play Connect 4
+            </button>
+          </div>
+
+          <!-- Game 3: Rock Paper Scissors -->
+          <div class="game-card glass-card" data-game="rps">
+            <div class="game-icon">🪨📄✂️</div>
+            <h3>Rock Paper Scissors</h3>
+            <p>Simultaneous secret move duel</p>
+            <button class="btn btn-primary btn-select-game" data-game="rps">
+              Play RPS
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== 4. GAME SCREEN ==================== -->
+    <main id="game-screen" class="screen hidden">
+      <!-- Navbar Header -->
+      <header class="game-header glass-panel">
+        <div class="header-left">
+          <div class="room-badge">
+            <span class="label">ROOM:</span>
+            <span id="display-room-id" class="value">------</span>
+            <button id="btn-copy-game-code" class="btn-icon-sm" title="Copy Room ID">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+          <span id="current-game-title" class="game-title-badge">Tic-Tac-Toe</span>
+        </div>
+
+        <div class="header-center">
+          <div id="turn-banner" class="turn-banner">
+            <span id="turn-text">Connecting...</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button id="btn-change-game" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-gamepad"></i> Switch Game
+          </button>
+          <button id="btn-leave-room" class="btn btn-danger-outline btn-sm">
+            <i class="fa-solid fa-right-from-bracket"></i> Leave
+          </button>
+        </div>
+      </header>
+
+      <div class="game-container">
+        <!-- Main Board Column -->
+        <section class="game-main">
+          <!-- Scoreboard -->
+          <div class="scoreboard glass-panel">
+            <div id="player-1-card" class="player-card p1-theme">
+              <div id="player-1-symbol" class="player-symbol">P1</div>
+              <div class="player-details">
+                <span id="player-1-name" class="player-name">Player 1</span>
+                <span id="player-1-badge" class="badge">Waiting...</span>
+              </div>
+              <div id="player-1-score" class="player-score">0</div>
+            </div>
+
+            <div class="score-vs">
+              <div class="vs-circle">VS</div>
+              <div class="draw-count">Draws: <span id="draw-score">0</span></div>
+            </div>
+
+            <div id="player-2-card" class="player-card p2-theme">
+              <div id="player-2-symbol" class="player-symbol">P2</div>
+              <div class="player-details">
+                <span id="player-2-name" class="player-name">Player 2</span>
+                <span id="player-2-badge" class="badge">Waiting...</span>
+              </div>
+              <div id="player-2-score" class="player-score">0</div>
+            </div>
+          </div>
+
+          <!-- Dynamic Game Board Container -->
+          <div id="game-board-container" class="board-container">
+            <!-- Dynamic board HTML rendered by game modules -->
+          </div>
+
+          <!-- Game Controls Toolbar -->
+          <div class="game-controls">
+            <button id="btn-restart" class="btn btn-success btn-glow">
+              <i class="fa-solid fa-rotate-right"></i> Play Again
+            </button>
+          </div>
+        </section>
+
+        <!-- Chat Sidebar Column -->
+        <aside class="chat-section glass-panel">
+          <div class="chat-header">
+            <h3><i class="fa-regular fa-comments"></i> Room Chat</h3>
+            <span class="chat-online-badge">Live</span>
+          </div>
+
+          <div id="chat-messages" class="chat-messages"></div>
+
+          <form id="chat-form" class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="120" autocomplete="off">
+            <button type="submit" class="btn-send" aria-label="Send Message">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- Socket.io Client Library -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    if (typeof io === 'undefined') {
+      document.write('<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Game Modules -->
+  <script src="games/tictactoe.js"></script>
+  <script src="games/connect4.js"></script>
+  <script src="games/rps.js"></script>
+
+  <!-- Core App Controller -->
+  <script src="script.js"></script>
+</body>
+</html>
